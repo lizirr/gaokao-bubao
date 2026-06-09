@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高考补报名 - 紧急通道</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e0f7fa 0%, #fff9c4 30%, #c8e6c9 60%, #e1bee7 100%);
+    background-size: 400% 400%;
+    animation: bgShift 12s ease infinite;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  @keyframes bgShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* ---- 奶龙图片通用 ---- */
+  .nl-img {
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .nl-sm  { width: 30px; height: 30px; }
+  .nl-md  { width: 44px; height: 44px; }
+  .nl-lg  { width: 64px; height: 64px; }
+  .nl-xl  { width: 90px; height: 90px; }
+
+  /* ---- 漂浮奶龙 ---- */
+  .nailong-float {
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    animation: floatAround linear infinite;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  @keyframes floatAround {
+    0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0.85; }
+    25%  { transform: translate(120px, -80px) rotate(15deg) scale(1.15); opacity: 0.6; }
+    50%  { transform: translate(-40px, -160px) rotate(-10deg) scale(0.9); opacity: 0.8; }
+    75%  { transform: translate(-100px, -40px) rotate(5deg) scale(1.1); opacity: 0.55; }
+    100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0.85; }
+  }
+
+  /* ---- 主卡片 ---- */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 40px auto;
+    padding: 0 16px 60px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    border-radius: 28px;
+    padding: 36px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.10), 0 0 0 1px rgba(255,255,255,0.6) inset;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-dragons-top {
+    text-align: center;
+    margin-bottom: 4px;
+    animation: bounce 1.4s ease infinite;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .card h1 {
+    text-align: center;
+    font-size: 26px;
+    color: #2e7d32;
+    margin-bottom: 4px;
+    letter-spacing: 2px;
+  }
+
+  .card .subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #f57c00;
+    margin-bottom: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* ---- 紧急提示条 ---- */
+  .alert-bar {
+    background: linear-gradient(90deg, #ff6f00, #ff8f00, #ff6f00);
+    color: #fff;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    font-weight: 700;
+    font-size: 14px;
+    animation: pulse 1.8s ease infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,111,0,0.5); }
+    50% { box-shadow: 0 0 0 14px rgba(255,111,0,0); }
+  }
+
+  /* ---- 表单 ---- */
+  .form-group {
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #33691e;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #c8e6c9;
+    border-radius: 14px;
+    font-size: 16px;
+    background: #f9fbe7;
+    transition: all 0.25s;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .form-group input:focus {
+    border-color: #66bb6a;
+    box-shadow: 0 0 0 4px rgba(102,187,106,0.15);
+    background: #fff;
+  }
+
+  .form-group input::placeholder {
+    color: #b0bec5;
+  }
+
+  .input-nailong {
+    position: absolute;
+    right: 12px;
+    top: 40px;
+    pointer-events: none;
+    animation: wiggle 2.5s ease infinite;
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(10deg); }
+    75% { transform: rotate(-10deg); }
+  }
+
+  /* ---- 提交按钮 ---- */
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #fff;
+    background: linear-gradient(135deg, #43a047, #66bb6a);
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 8px 24px rgba(67,160,71,0.35);
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(67,160,71,0.45);
+    background: linear-gradient(135deg, #388e3c, #4caf50);
+  }
+  .btn-submit:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(67,160,71,0.3);
+  }
+
+  /* ---- 温馨提示 ---- */
+  .notice {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #fff8e1;
+    border-radius: 12px;
+    border-left: 4px solid #ffb300;
+    font-size: 12px;
+    color: #6d4c41;
+    line-height: 1.7;
+  }
+
+  .notice strong { color: #e65100; }
+
+  /* ---- 底部 ---- */
+  .dragon-footer {
+    text-align: center;
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    animation: bounce 1.8s ease infinite;
+    animation-delay: 0.4s;
+  }
+
+  .dragon-divider {
+    text-align: center;
+    margin: 16px 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0.6;
+  }
+
+  /* ---- 成功弹窗 ---- */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+  }
+  .overlay.show { display: flex; }
+
+  .popup {
+    background: #fff;
+    border-radius: 24px;
+    padding: 40px 28px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+    animation: popIn 0.4s ease;
+  }
+  @keyframes popIn {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .popup .popup-nailongs { margin-bottom: 12px; display: flex; justify-content: center; gap: 12px; }
+  .popup h2 { color: #2e7d32; margin-bottom: 8px; }
+  .popup p { color: #666; font-size: 14px; margin-bottom: 20px; }
+  .popup button {
+    padding: 12px 36px;
+    font-size: 16px;
+    font-weight: 700;
+    background: #43a047;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+
+  /* ---- 粒子奶龙 ---- */
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 998;
+    border-radius: 50%;
+    object-fit: cover;
+    animation: particleUp 1.2s ease-out forwards;
+  }
+  @keyframes particleUp {
+    0%   { transform: translateY(0) scale(0.5); opacity: 1; }
+    100% { transform: translateY(-260px) scale(1.6); opacity: 0; }
+  }
+
+  /* 响应式 */
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; border-radius: 20px; }
+    .card h1 { font-size: 21px; }
+    .input-nailong { right: 8px; top: 38px; }
+    .nl-sm { width: 26px; height: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== 漂浮奶龙 ====== -->
+<img class="nailong-float" src="nailong.png" style="top:5%;left:3%;width:64px;height:64px;animation-duration:16s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:10%;right:4%;width:50px;height:50px;animation-duration:14s;animation-delay:-3s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:28%;left:2%;width:58px;height:58px;animation-duration:18s;animation-delay:-6s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:24%;right:3%;width:46px;height:46px;animation-duration:15s;animation-delay:-9s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:48%;left:2%;width:62px;height:62px;animation-duration:17s;animation-delay:-2s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:52%;right:3%;width:52px;height:52px;animation-duration:13s;animation-delay:-7s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:68%;left:3%;width:56px;height:56px;animation-duration:19s;animation-delay:-4s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:74%;right:3%;width:48px;height:48px;animation-duration:16s;animation-delay:-11s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:84%;left:5%;width:42px;height:42px;animation-duration:14s;animation-delay:-5s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:88%;right:5%;width:60px;height:60px;animation-duration:15s;animation-delay:-8s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:16%;left:9%;width:36px;height:36px;animation-duration:21s;animation-delay:-1s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:38%;right:8%;width:40px;height:40px;animation-duration:22s;animation-delay:-5s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:60%;left:8%;width:38px;height:38px;animation-duration:20s;animation-delay:-7s;" alt="奶龙">
+<img class="nailong-float" src="nailong.png" style="top:80%;right:9%;width:36px;height:36px;animation-duration:23s;animation-delay:-10s;" alt="奶龙">
+
+<div class="container">
+  <div class="card">
+
+    <!-- 顶部奶龙列队 -->
+    <div class="card-dragons-top">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    </div>
+
+    <h1>高考补报名登记</h1>
+    <p class="subtitle">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      <span style="color:#e65100;">紧急补报通道</span>
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    </p>
+
+    <!-- 紧急提示 -->
+    <div class="alert-bar">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      ⚠️ 补报名最后一天！请尽快填写 ⚠️
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    </div>
+
+    <form id="baomingForm">
+      <!-- 姓名 -->
+      <div class="form-group">
+        <label>
+          <img class="nl-img nl-sm" src="nailong.png" alt="奶龙"> 考生姓名
+        </label>
+        <input type="text" id="name" placeholder="请输入真实姓名" required autocomplete="name">
+        <span class="input-nailong">
+          <img class="nl-img" src="nailong.png" style="width:28px;height:28px;" alt="奶龙">
+        </span>
+      </div>
+
+      <!-- 身份证号 -->
+      <div class="form-group">
+        <label>
+          <img class="nl-img nl-sm" src="nailong.png" alt="奶龙"> 身份证号码
+        </label>
+        <input type="text" id="idCard" placeholder="18位身份证号码" required maxlength="18" pattern="[0-9Xx]{18}" autocomplete="off">
+        <span class="input-nailong">
+          <img class="nl-img" src="nailong.png" style="width:28px;height:28px;" alt="奶龙">
+        </span>
+      </div>
+
+      <!-- 准考证号 -->
+      <div class="form-group">
+        <label>
+          <img class="nl-img nl-sm" src="nailong.png" alt="奶龙"> 准考证号
+        </label>
+        <input type="text" id="examNum" placeholder="请输入准考证号" required autocomplete="off">
+        <span class="input-nailong">
+          <img class="nl-img" src="nailong.png" style="width:28px;height:28px;" alt="奶龙">
+        </span>
+      </div>
+
+      <!-- 手机号 -->
+      <div class="form-group">
+        <label>
+          <img class="nl-img nl-sm" src="nailong.png" alt="奶龙"> 联系电话
+        </label>
+        <input type="tel" id="phone" placeholder="11位手机号码" required maxlength="11" pattern="[0-9]{11}" autocomplete="tel">
+        <span class="input-nailong">
+          <img class="nl-img" src="nailong.png" style="width:28px;height:28px;" alt="奶龙">
+        </span>
+      </div>
+
+      <!-- 奶龙分隔线 -->
+      <div class="dragon-divider">
+        <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+        <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+        <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+        <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+        <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+        <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+        <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      </div>
+
+      <!-- 提交按钮 -->
+      <button type="submit" class="btn-submit">
+        <img class="nl-img" src="nailong.png" style="width:28px;height:28px;" alt="奶龙">
+        立即提交补报
+        <img class="nl-img" src="nailong.png" style="width:28px;height:28px;" alt="奶龙">
+      </button>
+    </form>
+
+    <!-- 温馨提示 -->
+    <div class="notice">
+      <strong>
+        <img class="nl-img nl-sm" src="nailong.png" alt="奶龙"> 奶龙温馨提示：
+      </strong><br>
+      • 请确保信息准确无误，提交后将无法修改<br>
+      • 补报名成功后，请留意短信通知<br>
+      • 如有疑问，请咨询当地招生办<br>
+      • <span style="color:#e65100;">本页面仅供演示，不会上传任何数据</span>
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    </div>
+
+  </div>
+
+  <!-- 底部奶龙阵列 -->
+  <div class="dragon-footer">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+  </div>
+  <div style="text-align:center;font-size:16px;color:#999;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px;">
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    奶龙 · 守护你的高考之路 · 奶龙
+    <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+  </div>
+</div>
+
+<!-- 成功弹窗 -->
+<div class="overlay" id="overlay">
+  <div class="popup">
+    <div class="popup-nailongs">
+      <img class="nl-img nl-xl" src="nailong.png" alt="奶龙">
+      <img class="nl-img nl-xl" src="nailong.png" alt="奶龙">
+      <img class="nl-img nl-xl" src="nailong.png" alt="奶龙">
+    </div>
+    <h2>补报名提交成功！</h2>
+    <p>
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      奶龙已经收到你的信息啦
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+      <br>请保持电话畅通，等待进一步通知～
+    </p>
+    <p style="font-size:12px;color:#999;">（演示页面，数据未上传）</p>
+    <button onclick="closePopup()">
+      <img class="nl-img nl-sm" src="nailong.png" alt="奶龙"> 知道了 <img class="nl-img nl-sm" src="nailong.png" alt="奶龙">
+    </button>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('baomingForm');
+  const overlay = document.getElementById('overlay');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value.trim();
+    const idCard = document.getElementById('idCard').value.trim();
+    const examNum = document.getElementById('examNum').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name) return alert('奶龙提醒：请输入姓名！');
+    if (!/^[0-9]{17}[0-9Xx]$/.test(idCard)) return alert('奶龙提醒：身份证号格式不正确！');
+    if (!examNum) return alert('奶龙提醒：请输入准考证号！');
+    if (!/^[0-9]{11}$/.test(phone)) return alert('奶龙提醒：手机号应为11位数字！');
+
+    spawnParticles();
+
+    setTimeout(() => {
+      overlay.classList.add('show');
+    }, 400);
+  });
+
+  function closePopup() {
+    overlay.classList.remove('show');
+    form.reset();
+  }
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closePopup();
+  });
+
+  // ---- 奶龙粒子爆炸 ----
+  function spawnParticles() {
+    const btn = document.querySelector('.btn-submit');
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    for (let i = 0; i < 30; i++) {
+      const img = document.createElement('img');
+      img.className = 'particle';
+      img.src = 'nailong.png';
+      const size = 26 + Math.random() * 30;
+      img.style.width = size + 'px';
+      img.style.height = size + 'px';
+      img.style.left = (cx + (Math.random() - 0.5) * 320) + 'px';
+      img.style.top  = (cy + (Math.random() - 0.5) * 120) + 'px';
+      img.style.animationDuration = (0.8 + Math.random() * 1.6) + 's';
+      img.style.animationDelay = Math.random() * 0.3 + 's';
+      document.body.appendChild(img);
+      setTimeout(() => img.remove(), 2200);
+    }
+  }
+</script>
+
+</body>
+</html>
